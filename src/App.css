@@ -1,0 +1,39 @@
+import React, { useState, useEffect } from 'react';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:3000');
+
+function App() {
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    socket.on('receive_message', (data) => {
+      setMessages((prev) => [...prev, data]);
+    });
+  }, []);
+
+  const sendMessage = () => {
+    socket.emit('send_message', { content: message });
+    setMessage('');
+  };
+
+  return (
+    <div>
+      <h1>Chat em Tempo Real</h1>
+      <div>
+        {messages.map((msg, idx) => (
+          <p key={idx}>{msg.content}</p>
+        ))}
+      </div>
+      <input
+        type="text"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+      />
+      <button onClick={sendMessage}>Enviar</button>
+    </div>
+  );
+}
+
+export default App;
